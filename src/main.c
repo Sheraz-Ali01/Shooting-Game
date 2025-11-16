@@ -17,7 +17,7 @@
 #define EnemeySpawnDelay 0.7f
 #define EnemeySpawnRadius 900
 #define EnemeySpeed 70.0f
-#define EnemeyRadius 16.0f
+#define EnemyRadius 16.0f
 
 
 
@@ -225,7 +225,7 @@ int main(){
                    enemy[i].velocity=Vector2Lerp(enemy[i].velocity,Vector2Scale(dirToPlayer,enemy[i].speed),3*deltaTime);
                    enemy[i].position=Vector2Add(enemy[i].position,Vector2Scale(enemy[i].velocity,deltaTime));
 
-                   if(Vector2Distance(enemy[i].position,player.postion) < player.radius+16){
+                   if(Vector2Distance(enemy[i].position,player.postion) < player.radius+EnemyRadius){
                         player.health-=20;
                         //enemy[i].alive=false;
                         if(player.health<=0){
@@ -249,13 +249,38 @@ int main(){
                     //Enemey eye will see player 
                     dirToPlayer_eye=Vector2Normalize(Vector2Subtract(player.postion, enPos));
                     eyePos=Vector2Add(enPos,Vector2Scale(dirToPlayer_eye,8.0f));
-                    DrawCircleV(enPos, EnemeyRadius, enemy[i].color);
+                    DrawCircleV(enPos, EnemyRadius, enemy[i].color);
                     DrawCircleV(eyePos,5, WHITE);
                     DrawCircleV(eyePos,2, RED);
 
 
                 }
             }
+
+        //Bullets kills Enemy
+        for(int i=0; i<MaxBullets; i++){
+            if(bullet[i].active){
+                for(int j=0; j<MaxEnemies; j++){
+                    if(enemy[j].alive){
+                        if(Vector2Distance(bullet[i].position,enemy[j].position) < EnemyRadius){
+                            enemy[j].alive=false;
+                            bullet[i].active=false;
+                            EnemiesKilled++;
+                            if(EnemiesKilled>EnemiesToKill){
+
+
+                                
+                                level++;
+                                EnemiesToKill=LevelEnimies*level;
+                                EnemiesKilled=0;
+                                EnemySpwanTime=0;
+                                
+                            }
+                        }
+                    }
+                }
+            }
+        }
            
 
 
