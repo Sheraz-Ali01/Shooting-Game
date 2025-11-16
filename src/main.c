@@ -14,6 +14,10 @@
 #define LevelEnimies 12
 #define PlayerSpeed 300.0f
 #define BulletSpeed 700.0
+#define EnemeySpawnDelay 0.7f
+#define EnemeySpawnRadius 900
+#define EnemeySpeed 70.0f
+
 
 
 
@@ -93,7 +97,7 @@ int main(){
         int level=1;          
         int EnemiesKilled=0;
         int EnemiesToKill=LevelEnimies;
-        float EnemySpwanTimer=0;    //Enemy spwan delay;
+        float EnemySpwanTime=0;    
         bool paused=false;
         bool gameOver=false;
         bool CanShoot=true;
@@ -129,31 +133,31 @@ int main(){
             player.postion.x+=(player.velocity.x)*deltaTime;
             player.postion.y+=(player.velocity.y)*deltaTime;
             
-            //Player bound
+        //Player bound
             player.postion.x=Clamp(player.postion.x, player.radius, MapWidth-player.radius);
             player.postion.y=Clamp(player.postion.y, player.radius, MapHeight-player.radius);
 
-            //aim 
+        //aim 
             Vector2 mouseWorld=GetScreenToWorld2D(GetMousePosition(), camera);
             player.shootDir=Vector2Normalize(Vector2Subtract(mouseWorld, player.postion));
 
-            //window starting
+        //window starting
 
             BeginDrawing();
             ClearBackground((Color){15, 35, 25, 255}); 
             BeginMode2D(camera);
 
 
-            // player body
+        // player body draw
             Vector2 palpos=player.postion;
-            DrawCircleV(palpos, player.radius, (Color){80, 50, 255, 255 });
-            DrawCircleV(palpos, 14, (Color){120, 180, 255, 255 });
+            DrawCircleV(palpos,player.radius, (Color){80, 50, 255, 255 });
+            DrawCircleV(palpos, 14,(Color){120, 180, 255, 255 });
 
-            DrawCircleV(Vector2Add(palpos,player.shootDir), 5, WHITE);
+            DrawCircleV(Vector2Add(palpos,player.shootDir),5, WHITE);//Player Eye follows aim/shootdirection
             DrawCircleV(Vector2Add(palpos, player.shootDir), 3, (Color){50, 100, 200});
             DrawLineEx(palpos, Vector2Add(palpos,Vector2Scale(player.shootDir,30)),4,ORANGE);
 
-            //Bullet Shooting
+        //Bullet Shooting
             if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON)&& CanShoot){
                 CanShoot=false;
                 for(int i=0; i<MaxBullets; i++){
@@ -169,7 +173,7 @@ int main(){
             if(!IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
                 CanShoot=true;
             }
-            //bullets update time to time
+        //bullets update time to time
             for(int i=0; i<MaxBullets; i++){
                 if(bullet[i].active){
                     bullet[i].position=Vector2Add(bullet[i].position, Vector2Scale(bullet[i].direction, BulletSpeed*deltaTime));
@@ -182,7 +186,7 @@ int main(){
 
                 }
             }
-            //Draw bullets
+        //Draw bullets
 
             for(int i=0; i <MaxBullets; i++){
                 if(bullet[i].active){
@@ -190,7 +194,48 @@ int main(){
                     DrawCircleV(bullet[i].position, 10, Fade(YELLOW, 0.3f));
                 }
             }
-            
+
+        //Enem Sypawning
+            EnemySpwanTime+=deltaTime;
+            if(EnemySpwanTime>=EnemeySpawnDelay && EnemiesKilled<EnemiesToKill){
+                EnemySpwanTime=0;
+                for(int i=0; i<MaxEnemies; i++){
+                    if(!enemy[i].alive){
+                        float angle=(float)rand()/RAND_MAX*2*PI;
+                        float distance=200+(rand()%300);
+
+                        enemy[i].position=Vector2Add(player.postion, (Vector2){cosf(angle)*distance,sinf(angle)*distance});
+                        Vector2 dirToPlayer=Vector2Normalize(Vector2Subtract(player.postion,enemy[i].position));
+                        enemy[i].velocity=Vector2Scale(dirToPlayer,EnemeySpeed);
+                        enemy[i].speed=EnemeySpeed;
+                        enemy[i].alive=true;
+                        enemy[i].color=(Color){180 + rand() % 70, 60 + rand() % 40, 60, 255};
+                        break;
+                        
+
+                    }
+
+                }   
+            }
+        
+        //Draw Enemy Body
+        Vector2 dirToPlayer;
+        Vector2 eyePos;
+            for(int i=0; i<MaxEnemies; i++){
+                if(enemy[i].alive){
+                    
+                    Vector2 enPos=enemy[i].position;
+                    //Enemey eye will see player 
+                    dirToPlayer=Vector2Normalize(Vector2Subtract(player.postion, enPos));
+                    eyePos=Vector2Add(enPos,Vector2Scale(dirToPlayer,8.0f));
+                    DrawCircleV(enPos, 16, enemy[i].color);
+                    DrawCircleV(eyePos,5, WHITE);
+                    DrawCircleV(eyePos,2, RED);
+
+
+                }
+            }
+           
 
 
 
