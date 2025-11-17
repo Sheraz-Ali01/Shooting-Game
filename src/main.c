@@ -266,16 +266,17 @@ int main(){
                             enemy[j].alive=false;
                             bullet[i].active=false;
                             EnemiesKilled++;
-                            if(EnemiesKilled>EnemiesToKill){
+                                //Levels upragation
+                                if(EnemiesKilled>EnemiesToKill){
 
-
-                                
-                                level++;
-                                EnemiesToKill=LevelEnimies*level;
-                                EnemiesKilled=0;
-                                EnemySpwanTime=0;
-                                
-                            }
+                                    
+                                    level++;
+                                    EnemiesToKill=LevelEnimies*level;
+                                    EnemiesKilled=0;
+                                    EnemySpwanTime=0;
+                                    
+                                }
+                            break;
                         }
                     }
                 }
