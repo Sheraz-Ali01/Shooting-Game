@@ -5,7 +5,7 @@
 #include <time.h>
 
 #define ScreenWidth 1200
-#define ScreenHeight 800
+#define ScreenHeight 700
 #define MapHeight 3000
 #define MapWidth 3000
 #define MaxEnemies 50
@@ -258,31 +258,41 @@ int main(){
             }
 
         //Bullets kills Enemy
-        for(int i=0; i<MaxBullets; i++){
-            if(bullet[i].active){
-                for(int j=0; j<MaxEnemies; j++){
-                    if(enemy[j].alive){
-                        if(Vector2Distance(bullet[i].position,enemy[j].position) < EnemyRadius){
-                            enemy[j].alive=false;
-                            bullet[i].active=false;
-                            EnemiesKilled++;
-                                //Levels upragation
-                                if(EnemiesKilled>EnemiesToKill){
-
-                                    
-                                    level++;
-                                    EnemiesToKill=LevelEnimies*level;
-                                    EnemiesKilled=0;
-                                    EnemySpwanTime=0;
-                                    
-                                }
-                            break;
+            for(int i=0; i<MaxBullets; i++){
+                if(bullet[i].active){
+                    for(int j=0; j<MaxEnemies; j++){
+                        if(enemy[j].alive){
+                            if(Vector2Distance(bullet[i].position,enemy[j].position) < EnemyRadius){
+                                enemy[j].alive=false;
+                                bullet[i].active=false;
+                                EnemiesKilled++;
+                                    //Levels upragation
+                                    if(EnemiesKilled>EnemiesToKill){
+                                        
+                                        level++;
+                                        EnemiesToKill=LevelEnimies*level;
+                                        EnemiesKilled=0;
+                                        EnemySpwanTime=0;
+                                        
+                                    }
+                                break;
+                            }
                         }
                     }
                 }
             }
-        }
+        //Camera moves with enemy
+            camera.target = Vector2Lerp(camera.target, player.postion, 8 * deltaTime);
+        //Paused or Unpaused
+        // if(IsKeyPressed(KEY_P)){
+        //     paused=!paused;
+        // }
+        
+        
            
+
+            
+
 
 
 
@@ -291,6 +301,27 @@ int main(){
 
 
             EndMode2D();
+        
+        //Level show
+            DrawText(TextFormat("Level %d", level), ScreenWidth / 2 - 90, 25, 52 ,WHITE);
+            if(paused){
+                DrawRectangle(0,0,ScreenWidth, ScreenHeight, (Color){0,0,0,150});
+                DrawText("PAUSED", ScreenWidth/2-180, ScreenHeight/2, 72, WHITE);
+                DrawText("Press P to Reasume", ScreenWidth/2 -120, ScreenHeight/2 -60, 36, LIGHTGRAY);
+            }
+        //Showing GameOver but file handling is remaining
+            if(gameOver){
+                    DrawRectangle(0,0,ScreenWidth, ScreenHeight, (Color){0,0,0,150});
+                    DrawText("GAME OVER", ScreenWidth/2-200, ScreenHeight/2 -120, 72, WHITE);
+                    DrawText(TextFormat("Level Reached %d", level-1), ScreenWidth/2 -120, ScreenHeight/2 , 36, LIGHTGRAY);
+            }
+        //health Bar
+            Rectangle healthbg={ScreenWidth/2 -160, ScreenHeight-70, 320, 35};
+            Rectangle healthfilling={healthbg.x+5, healthbg.y+5, (player.health/player.maxHealth)*310,25};
+            DrawRectangleRec(healthbg, (Color){60,60,60,255});
+            DrawRectangleRec(healthfilling, player.health>40? GREEN: player.health>15? ORANGE: RED );
+
+
             EndDrawing();
             
         }
