@@ -94,6 +94,7 @@ int players=0;
     char nameEntering[20]= "";
     int nameLength= 0;
     bool isName =false;
+   // bool preUserAgain=false;
 
 
 void showLeaderboard();
@@ -127,9 +128,9 @@ int main(){
             tree[i].color=(Color){20+(rand()%60),60+(rand()%60),20,255};
         }
 
-    //Game initialization
+    //Game init
     while(!WindowShouldClose()){
-        float deltaTime= GetFrameTime();
+        float deltaTime = GetFrameTime();
         Vector2 mousePos=GetMousePosition();
 
          if(IsKeyPressed(KEY_ESCAPE)) {
@@ -147,8 +148,11 @@ int main(){
                 Rectangle boardBtn={(ScreenWidth/2)-100,330,400,55};
                 Rectangle quitBtn={(ScreenWidth/2)-100,400,400,55};
                 if(CheckCollisionPointRec(mousePos,startBtn)){
+                    //options=NAMEINPUT; used without comfrimation of user
                     if(isName) options=CONFIRMUSER;
-                    else       options=NAMEINPUT;
+                    else     options=NAMEINPUT; 
+
+
                 }else if(CheckCollisionPointRec(mousePos,boardBtn)) options=LADERBOARD;
                 else if(CheckCollisionPointRec(mousePos,quitBtn)) break;
 
@@ -191,9 +195,22 @@ int main(){
 
                 //On Mouse Click options
                 if(CheckCollisionPointRec(mousePos, changeBtn)) options=NAMEINPUT;
-                else if(CheckCollisionPointRec(mousePos, continueBtn)) options=INGAME;
+                else if(CheckCollisionPointRec(mousePos, continueBtn)){
+                    player.postion=(Vector2){MapWidth/2, MapHeight/2};
+                    player.health=100;
+                    EnemiesKilled=0;
+                    EnemiesToKill=LevelEnimies;
+                    level= 1;
+                    EnemySpwanTime=0;
+                    gameOver=false;
+                    paused=false;
+                    for(int i=0; i<MaxEnemies; i++) enemy[i].alive=false;
+                    for(int i=0; i<MaxBullets; i++) bullet[i].active=false;
+
+                    options=INGAME;
+                } 
             }
-        }else if(options==INGAME &&(!paused && !gameOver)){        
+        }else if(options==INGAME &&(!paused && !gameOver)){       
 
                 Vector2 moveDir={0,0};
                 if(IsKeyDown(KEY_W)){
@@ -422,7 +439,7 @@ int main(){
                 }
            //Paused and QuiteGame condition ends here 
             //Camera moves with enemy
-                camera.target = Vector2Lerp(camera.target, player.postion, 8*deltaTime);
+               camera.target = Vector2Lerp(camera.target, player.postion, 8*deltaTime);
     
             EndMode2D();    
             //Level show
