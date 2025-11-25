@@ -1,1 +1,7 @@
+Sohim,6,1
+a,3,1
+s,1,1
+s,0,1
+Sohim,0,1
+Anser,23,2
 Sheraz,21,2

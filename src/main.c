@@ -224,9 +224,11 @@ int main(){
                 player.postion.x=Clamp(player.postion.x, player.radius, MapWidth-player.radius);
                 player.postion.y=Clamp(player.postion.y, player.radius, MapHeight-player.radius);
 
-            //aim 
+            //aim
                 Vector2 mouseWorld=GetScreenToWorld2D(GetMousePosition(), camera);
                 player.shootDir=Vector2Normalize(Vector2Subtract(mouseWorld,player.postion));
+                
+
             //Bullet Shooting
                 if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON)&& CanShoot){
                     CanShoot=false;
@@ -234,7 +236,7 @@ int main(){
                         if(!bullet[i].active){
                             bullet[i].active=true;
                             bullet[i].position=Vector2Add(player.postion, Vector2Scale(player.shootDir,player.radius));
-                            bullet[i].direction=player.shootDir;
+                            bullet[i].direction=player.shootDir;    
                             bullet[i].time=0;
                             break; //On 1 click only one bullet
                         }
@@ -249,9 +251,8 @@ int main(){
                         bullet[i].position=Vector2Add(bullet[i].position, Vector2Scale(bullet[i].direction, BulletSpeed*deltaTime));
                         bullet[i].time+=deltaTime;
 
-                        //bullet restrictions/limitations
-                        if(bullet[i].time>2.0f || bullet[i].position.x<0 || bullet[i].position.x>MapWidth || bullet[i].position.y <0 || bullet[i].position.y>MapHeight){
-                            bullet[i].active=false;
+                        if(bullet[i].time>2.0f){
+                         bullet[i].active=false;
                         }
                     }
                 }
@@ -265,9 +266,10 @@ int main(){
                             float distance=200+(rand()%300);
 
                             enemy[i].position=Vector2Add(player.postion, (Vector2){cosf(angle)*distance,sinf(angle)*distance});
+                        //    enemy[i].position=(Vector2){ rand()%(ScreenWidth), 0};
                             Vector2 dirToPlayer=Vector2Normalize(Vector2Subtract(player.postion,enemy[i].position));
                             enemy[i].velocity=Vector2Scale(dirToPlayer,EnemeySpeed);
-                            enemy[i].speed=EnemeySpeed;
+                            enemy[i].speed=EnemeySpeed; 
                             enemy[i].alive=true;
                             break;
                         }
@@ -280,6 +282,12 @@ int main(){
                     enemy[i].velocity=Vector2Lerp(enemy[i].velocity,Vector2Scale(dirToPlayer,enemy[i].speed),3*deltaTime);
                     enemy[i].position=Vector2Add(enemy[i].position,Vector2Scale(enemy[i].velocity,deltaTime));
 
+                    // Vector2 backSteps=Vector2Scale(Vector2Normalize(Vector2Subtract(enemy[i].position,player.postion)),200);
+                    // if(Vector2Distance(enemy[i].position, player.postion)<(player.radius+15)+ EnemyRadius){
+                    //     Vector2 backSteps=Vector2Scale(Vector2Normalize(Vector2Subtract(enemy[i].position,player.postion)),200);
+                    //     enemy[i].position=Vector2Add(enemy[i].position, backSteps);
+                    // }
+                        
                     if(Vector2Distance(enemy[i].position,player.postion)< player.radius+EnemyRadius){
                             player.health-=20;
                             //enemy[i].alive=false;
@@ -289,7 +297,9 @@ int main(){
                                 options=GAMEOVER;
                             }
                             Vector2 backSteps=Vector2Scale(Vector2Normalize(Vector2Subtract(enemy[i].position,player.postion)),200);
+                            
                             enemy[i].position=Vector2Add(enemy[i].position, backSteps);
+                            
                         }
                     }
                 }
@@ -376,12 +386,14 @@ int main(){
             // player body draw
                 Vector2 palpos=player.postion;
                 DrawCircleV(palpos,player.radius, (Color){80, 50, 255, 255});
+                //DrawCircleV(palpos, player.radius + 15 , BLACK);    
                 DrawCircleV(palpos, 14,(Color){120, 180, 255, 255 });
                 DrawCircleV(Vector2Add(palpos,player.shootDir),5, WHITE);//Player Eye follows aim/shootdirection
                 DrawCircleV(Vector2Add(palpos, player.shootDir), 3, (Color){50, 100, 200});
                 DrawLineEx(palpos, Vector2Add(palpos,Vector2Scale(player.shootDir,30)),4,ORANGE);
 
-            //Draw bullets
+
+            //Draw bulletsw
                 for(int i=0; i <MaxBullets; i++){
                     if(bullet[i].active){
                         DrawCircleV(bullet[i].position, 5, YELLOW);
@@ -525,3 +537,5 @@ void updateLeaderboard(){
         saveLeaderboard();
     }
 }
+
+//gcc -o ShootingGame src/main.c -lraylib -lGL -lm -lpthread -ldl -lrt
