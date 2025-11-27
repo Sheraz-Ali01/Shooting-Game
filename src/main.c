@@ -5,6 +5,8 @@
 #include <time.h>
 #include <stdio.h>
 #include <string.h>
+//gcc -o ShootingGame src/main.c -lraylib -lGL -lm -lpthread -ldl -lrt
+
 
 #define ScreenWidth 1200
 #define ScreenHeight 700
@@ -68,8 +70,8 @@ typedef enum{
     GAMEOVER,
     CONFIRMUSER,
 }GameOptions;
-
 GameOptions options;
+
 ScoreBoard Players[MaxPlayersOnld];
 int players=0;
 
@@ -186,6 +188,7 @@ int main(){
                 paused=false;
                 for(int i=0; i<MaxEnemies; i++) enemy[i].alive=false;
                 for(int i=0; i<MaxBullets; i++) bullet[i].active=false;
+                player.totalKills=0;
             }
             
         }else if(options==CONFIRMUSER){
@@ -242,8 +245,10 @@ int main(){
                 player.postion.y=Clamp(player.postion.y, player.radius, MapHeight-player.radius);
 
             //aim
-                Vector2 mouseWorld=GetScreenToWorld2D(GetMousePosition(), camera);
+                Vector2 mouseWorld=GetScreenToWorld2D(GetMousePosition(), camera);            
                 player.shootDir=Vector2Normalize(Vector2Subtract(mouseWorld,player.postion));
+
+                
                 
 
             //Bullet Shooting
@@ -283,9 +288,10 @@ int main(){
                             float distance=200+(rand()%300);
 
                             enemy[i].position=Vector2Add(player.postion, (Vector2){cosf(angle)*distance,sinf(angle)*distance});
-                        //    enemy[i].position=(Vector2){ rand()%(ScreenWidth), 0};
-                            Vector2 dirToPlayer=Vector2Normalize(Vector2Subtract(player.postion,enemy[i].position));
-                            enemy[i].velocity=Vector2Scale(dirToPlayer,EnemeySpeed);
+                        //  enemy[i].position=(Vector2){ rand()%(ScreenWidth), 0};
+                        
+                           // Vector2 dirToPlayer=Vector2Normalize(Vector2Subtract(player.postion,enemy[i].position));
+                           // enemy[i].velocity=Vector2Scale(dirToPlayer,EnemeySpeed);
                             enemy[i].speed=EnemeySpeed; 
                             enemy[i].alive=true;
                             break;
@@ -498,6 +504,7 @@ int main(){
             DrawText(TextFormat("Final Kills: %d", player.totalKills), (ScreenWidth/2)- 180, 340, 50, YELLOW);
             DrawText(TextFormat("Reached Wave: %d", level), (ScreenWidth/2)- 160, 400, 50, GOLD);
             DrawText("Press ESC for Menu", (ScreenWidth/2)- 200, 520, 40, WHITE);
+            
 
         }
         
@@ -540,9 +547,8 @@ void updateLeaderboard(){
 
     int topper=0;
     for(int i=0; i<players; i++){
-        if((currentPlayer.kills>Players[i].kills || currentPlayer.kills==Players[i].kills)){
+        if((currentPlayer.kills>=Players[i].kills)){
          topper=i;
-         break;
         }
     }
     if(topper<MaxPlayersOnld) {
